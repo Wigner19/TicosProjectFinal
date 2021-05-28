@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo&family=Poppins:wght@300&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+    integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <title>Home</title>
+</head>
+<body>
+    <div>
+        <header>
+            <img src="{{ url_for('static', filename='images/ticos.png') }}" alt="Logo">
+                <ul>
+                    <a href="{{ url_for('bp.index') }}"><li><i class="fa fa-home"></i></li></a>
+                    <a href="{{ url_for('bp.view_financial') }}"><li><i class="fa fa-money"></i></li></a>
+                    <a href="{{ url_for('bp.view_reports' ) }}"><li><i class="fa fa-line-chart"></i></li></a>
+                    <a href="{{ url_for('bp.plate') }}"><li><i class="fa fa-product-hunt"></i></li></a>
+                    <a href="{{ url_for('bp.view_config') }}"><li><i class="fa fa-cogs"></i></li></a>
+                    <a href="{{ url_for('bp.view_cashier') }}"><li><i class="fa fa-usd"></i></li></a>
+                    <a href="{{ url_for('bp.logout_session') }}"><li><i class="fa fa-sign-out"></i></li></a>
+                </ul>
+        </header>
+        <main>
+            <h1 class="dashboard">Estoque</h1>
+            <form action="{{ url_for('bp.search_product') }}" method="POST">
+                <label><input type="search" name="produto" list="produtos" placeholder="Buscar Produto"><button type="submit"><i class="fa fa-search"></i></button></label>
+                <datalist id="produtos">
+                    {% for pd in listProducts2 %}
+                    {% for nm in pd %}
+                        <option>{{ nm.capitalize() }}</option>
+                    {% endfor %}
+                    {% endfor %}
+                </datalist>
+            </form>
+
+            <span class="button"><a href="{{ url_for('bp.productView') }}" target="_self"><button><i class="fa fa-plus" aria-hidden="true"></i></button></a></span>
+
+            <div class="items">
+                {% for product in listProducts %}
+                {% for item in product %}
+                    {% if product[item]["quantidade"] > product[item]["minimo"]+(product[item]["minimo"]*50)/100 %}
+                        <div class="item">
+
+                            <form class="submenu" method="post" action="/ideas/{{id}}?_method=DELETE">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <div>
+                                    <a href="/product/{{ item }}/?_method=DELETE"><i class="fa fa-trash-o"></i></a>
+                                    <a><i class="fa fa-pencil"></i></a>
+                                </div>
+                            </form>
+
+                            <form class="form-items" action="{{ url_for('bp.edit_qnt_produtcs') }}" method="POST">
+                                <div class="inputs"><label class="label1"></label><input type="number" min="0" name="qntd" class="qntd" value="{{ product[item]['quantidade'] }}" required disabled></div>
+                                <div class="inputs"><label class="label2"></label><input type="number" min="0" name='min' class="min" value="{{ product[item]['minimo'] }}" required disabled></div>
+                                <input type="hidden" name='nm_product' value="{{ item }}">
+                                <button type="submit" class="submit"><i class="fa fa-check"></i></button>
+                                <div class="inputs"><label class="label3"></label><input type="text" name='new_name' class="product" value="{{ item.capitalize() }}" onkeypress="return Letras(event,this);" required disabled></div>
+                                <div class="inputs"><label class="label4"></label><input type="text" name='unidade' class="unity" value="{{ product[item]['unidade'] }}" required disabled></div>
+                            </form>
+
+                            <button class="times"><i class="fa fa-times"></i></button>
+
+                            <form class="submenu" method="post" action="/ideas/{{id}}?_method=PUT">
+                                <input type="hidden" name="_method" value="PUT">
+                            </form>
+
+                        </div>
+                    {% elif product[item]["quantidade"] <= product[item]["minimo"] + (product[item]["minimo"]*50)/100 and product[item]["quantidade"] > product[item]["minimo"] %}
+                        <div class="item" style="background-color: #FFD700;">
+                            <form class="submenu" method="post" action="/ideas/{{id}}?_method=DELETE">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <div>
+                                    <a href="/product/{{ item }}/?_method=DELETE"><i class="fa fa-trash-o"></i></a>
+                                    <a ><i class="fa fa-pencil"></i></a>
+                                </div>
+                            </form>
+
+                            <form class="form-items"action="{{ url_for('bp.edit_qnt_produtcs') }}" method="POST">
+                                <div class="inputs"><label class="label1"></label><input type="number" min="0" name="qntd" class="qntd" value="{{ product[item]['quantidade'] }}" required disabled></div>
+                                <div class="inputs"><label class="label2"></label><input type="number" min="0" name='min' class="min" value="{{ product[item]['minimo'] }}" required disabled></div>
+                                <input type="hidden" name='nm_product' value="{{ item }}">
+                                <button type="submit" class="submit"><i class="fa fa-check"></i></button>
+                                <div class="inputs"><label class="label3"></label><input type="text" name='new_name' class="product" value="{{ item.capitalize() }}" onkeypress="return Letras(event,this);" required disabled></div>
+                                <div class="inputs"><label class="label4"></label><input type="text" name='unidade' class="unity" value="{{ product[item]['unidade'] }}" required disabled></div>
+                            </form>
+
+                            <button class="times"><i class="fa fa-times"></i></button>
+
+                            <form class="submenu" method="post" action="/ideas/{{id}}?_method=PUT">
+                                <input type="hidden" name="_method" value="PUT">
+                            </form>
+                        </div>
+                    {% elif product[item]["quantidade"] <= product[item]["minimo"] %}
+                        <div class="item" style="background-color: #B22222;">
+                            <form class="submenu" method="post" action="/ideas/{{id}}?_method=DELETE">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <div>
+                                    <a href="/product/{{ item }}/?_method=DELETE"><i class="fa fa-trash-o"></i></a>
+                                    <a ><i class="fa fa-pencil"></i></a>
+                                </div>
+                            </form>
+
+                            <form class="form-items" action="{{ url_for('bp.edit_qnt_produtcs') }}" method="POST">
+                                <div class="inputs"><label class="label1"></label><input type="number" min="0" name="qntd" class="qntd" value="{{ product[item]['quantidade'] }}" required disabled></div>
+                                <div class="inputs"><label class="label2"></label><input type="number" min="0" name='min' class="min" value="{{ product[item]['minimo'] }}" required disabled></div>
+                                <input type="hidden" name='nm_product' value="{{ item }}">
+                                <button type="submit" class="submit"><i class="fa fa-check"></i></button>
+                                <div class="inputs"><label class="label3"></label><input type="text" name='new_name' class="product" value="{{ item.capitalize() }}" onkeypress="return Letras(event,this);" required disabled></label></div>
+                                <div class="inputs"><label class="label4"></label><input type="text" name='unidade' class="unity" value="{{ product[item]['unidade'] }}" required disabled></div>
+                            </form>
+
+                            <button class="times"><i class="fa fa-times"></i></button>
+
+                            <form class="submenu" method="post" action="/ideas/{{id}}?_method=PUT">
+                                <input type="hidden" name="_method" value="PUT">
+                            </form>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/stock.js') }}"></script>
+</body>
+</html>
